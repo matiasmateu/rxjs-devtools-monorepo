@@ -1,14 +1,13 @@
 // Example usage patterns for RxJS DevTools React integration
 
-import React, { useEffect, useState } from 'react';
-import { interval, fromEvent, map, filter, debounceTime } from 'rxjs';
+import  { useEffect, useState } from 'react';
+import { interval, fromEvent, map, debounceTime } from 'rxjs';
 import {
   useRxJSDevTools,
   useTrackedObservable,
   useObservableFactory,
   trackObservable,
   withTracking,
-  TrackedObservable,
 } from './index';
 
 // Example 1: Basic setup in root component
@@ -51,8 +50,7 @@ export function SearchComponent() {
   
   const searchResults$ = useObservableFactory(
     () => {
-      if (!searchTerm) return interval(1000).pipe(map(() => []));
-      
+      if (!searchTerm) return interval(1000).pipe(map(() => ''));
       return fromEvent(document, 'keyup').pipe(
         debounceTime(300),
         map(() => `Search results for: ${searchTerm}`)
@@ -62,7 +60,7 @@ export function SearchComponent() {
     'Search Results Stream'
   );
 
-  const [results, setResults] = useState<any>([]);
+  const [results, setResults] = useState<string>('');
 
   useEffect(() => {
     const subscription = searchResults$.subscribe(setResults);
@@ -76,7 +74,7 @@ export function SearchComponent() {
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search..."
       />
-      <div>{JSON.stringify(results)}</div>
+      <div>{results}</div>
     </div>
   );
 }
@@ -102,14 +100,13 @@ export function UtilityExample() {
 
 // Example 5: Using the decorator pattern
 class DataService {
-  @TrackedObservable('User Data Stream')
+  // getUserData and getNotifications without decorators
   getUserData() {
     return interval(2000).pipe(
       map(n => ({ id: n, name: `User ${n}` }))
     );
   }
 
-  @TrackedObservable('Notifications')
   getNotifications() {
     return interval(5000).pipe(
       map(n => `Notification ${n}`)

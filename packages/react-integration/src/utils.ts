@@ -46,11 +46,12 @@ export function getRxJSDevTools(): RxJSDevTools {
  * 
  * @param observable - Observable to track
  * @param name - Optional name for the observable
+ * @param metadata - Optional metadata for the stream
  * @returns Tracked observable
  */
-export function trackObservable<T>(observable: Observable<T>, name?: string): Observable<T> {
+export function trackObservable<T>(observable: Observable<T>, name?: string, metadata?: Record<string, any>): Observable<T> {
   const devTools = getRxJSDevTools();
-  return devTools.trackObservable(observable, name);
+  return devTools.trackObservable(observable, name, metadata) as Observable<T>;
 }
 
 /**
@@ -91,7 +92,7 @@ export function TrackedObservable(name?: string) {
       
       try {
         const devTools = getRxJSDevTools();
-        return devTools.trackObservable(observable, streamName);
+        return devTools.trackObservable(observable, streamName) as T;
       } catch {
         // DevTools not available, return original observable
         return observable;
@@ -119,7 +120,7 @@ export function withTracking<T extends (...args: any[]) => Observable<any>>(
     
     try {
       const devTools = getRxJSDevTools();
-      return devTools.trackObservable(observable, streamName);
+      return devTools.trackObservable(observable, streamName) as Observable<any>;
     } catch {
       // DevTools not available, return original observable
       return observable;
@@ -141,7 +142,7 @@ export function trackInDevelopment<T>(observable: Observable<T>, name?: string):
   
   try {
     const devTools = getRxJSDevTools();
-    return devTools.trackObservable(observable, name);
+    return devTools.trackObservable(observable, name) as Observable<T>;
   } catch {
     return observable;
   }
@@ -168,7 +169,7 @@ export function createTrackedFactory<T extends (...args: any[]) => Observable<an
     
     try {
       const devTools = getRxJSDevTools();
-      return devTools.trackObservable(observable, streamName);
+      return devTools.trackObservable(observable, streamName) as Observable<any>;
     } catch {
       return observable;
     }

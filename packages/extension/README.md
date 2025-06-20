@@ -1,13 +1,11 @@
-# 🔄 RxJS DevTools
+# 🔄 RxJS DevTools (React Only)
 
-A Chrome extension for debugging and monitoring RxJS observables in real-time, built with TypeScript for enhanced type safety and developer experience.
+A Chrome extension for debugging and monitoring RxJS observables in React applications, built with TypeScript for enhanced type safety and developer experience.
 
 ## ✨ Features
 
-- 🔍 **Real-time Stream Monitoring** - Track observable creations, subscriptions, and emissions
+- 🔍 **Real-time Stream Monitoring** - Track observable creations, subscriptions, and emissions (React only)
 - 📊 **DevTools Integration** - Dedicated panel in Chrome DevTools for stream inspection  
-- 🎯 **Smart Detection** - Automatically detects RxJS usage in Angular, React, and vanilla JS apps
-- 📈 **Emission Timeline** - View stream emissions with timestamps and values
 - ⚡ **Performance Optimized** - Minimal impact on application performance
 - 🔧 **TypeScript Support** - Full type safety and enhanced development experience
 
@@ -26,9 +24,8 @@ A Chrome extension for debugging and monitoring RxJS observables in real-time, b
    - Enable "Developer mode"  
    - Click "Load unpacked" → select this folder
 
-3. **Test with Examples:**
+3. **Test with React Example:**
    ```bash
-   open examples/test-page.html        # Basic RxJS patterns
    open examples/react-test-page.html  # React + RxJS integration
    ```
 
@@ -50,9 +47,7 @@ rxjs-devtools/
 │   │   ├── background.ts         # Background service worker
 │   │   ├── devtools.ts          # DevTools creation
 │   │   ├── panel.ts             # Main panel logic
-│   │   ├── popup.ts             # Popup functionality
-│   │   ├── rxjs-detector.ts     # Content script
-│   │   └── injected-script.ts   # Page context script
+│   │   └── popup.ts             # Popup functionality
 │   └── types/                   # Type definitions
 │
 ├── 🏗️ Build System
@@ -64,7 +59,6 @@ rxjs-devtools/
 │
 ├── 🧪 Testing & Examples
 │   ├── examples/               # Test pages
-│   │   ├── test-page.html     # Basic RxJS testing
 │   │   └── react-test-page.html # React integration
 │   └── tests/                 # Future test files
 │
@@ -98,45 +92,33 @@ npm run validate
 1. Edit TypeScript files in `src/`
 2. Run `npm run build` or `npm run watch`
 3. Reload extension in `chrome://extensions/`
-4. Test changes with example pages
+4. Test changes with the React example page
 
 ## 🎯 Framework Support
 
-### ✅ React Applications
+### ✅ React Applications (Only)
 - **State Management** - Redux-Observable, RxJS stores
 - **Hooks Integration** - Custom hooks with observables
 - **Event Streams** - DOM events and user interactions
 - **HTTP Requests** - API calls with RxJS operators
 
-### ✅ Angular Applications  
-- **HttpClient Observables** - HTTP request monitoring
-- **Reactive Forms** - Form control streams
-- **Router Events** - Navigation streams
-- **Service Integration** - Service-based observables
-
-### ✅ Vanilla JavaScript
-- **Direct Observable Usage** - Any RxJS implementation
-- **Custom Operators** - User-defined operators
-- **Third-party Libraries** - Libraries using RxJS
+> **Note:** This extension now only supports React applications. All observable tracking must be done via the React integration package and its hooks/utilities. There is no automatic or global patching of observables.
 
 ## 🧪 Testing
 
-### Test with Included Examples
+### Test with Included Example
 
 ```bash
-# Basic RxJS patterns
-open examples/test-page.html
-
 # React + RxJS integration  
 open examples/react-test-page.html
 ```
 
-### Test with Your Applications
+### Test with Your React Applications
 
 1. Load the extension in Chrome
-2. Navigate to your app using RxJS
+2. Navigate to your React app using RxJS
 3. Open DevTools → "RxJS" tab
-4. Create observables to see them tracked
+4. Use the React integration hooks/utilities to track observables
 
 ## 📖 Documentation
 
@@ -169,15 +151,10 @@ The project uses strict TypeScript configuration:
 - Verify all files in `dist/` exist
 - Check browser console for errors
 
-### RxJS Not Detected
-- Refresh page after loading extension
-- Check if RxJS is bundled vs global
-- Open browser console for detection logs
-
 ### Streams Not Appearing
-- Verify observables are being subscribed to
-- Check DevTools console for patch errors
-- Try the test pages to verify functionality
+- Ensure you are using the React integration hooks/utilities to track observables
+- Check DevTools console for errors
+- Try the React example page to verify functionality
 
 ## 🤝 Contributing
 

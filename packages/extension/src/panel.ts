@@ -56,7 +56,6 @@ class RxJSDevToolsPanel {
   private streams = new Map<string, StreamInfo>();
   private selectedStreamId: string | null = null;
   private isPaused = false;
-  private isRxJSDetected = false;
   private port!: chrome.runtime.Port;
   private elements!: PanelElements;
 
@@ -154,7 +153,6 @@ class RxJSDevToolsPanel {
           } else if (response && response.rxjsDetected) {
             console.log('🔄 RxJS DevTools Panel: RxJS detected via background');
             this.updateStatus(true, 'RxJS detected');
-            this.isRxJSDetected = true;
 
             // Load existing streams if any
             if (response.streams && typeof response.streams === 'object') {
@@ -198,7 +196,6 @@ class RxJSDevToolsPanel {
           if (!chrome.runtime.lastError && response && response.rxjsDetected) {
             console.log('🔄 RxJS DevTools Panel: RxJS detected via tab message');
             this.updateStatus(true, 'RxJS detected');
-            this.isRxJSDetected = true;
           }
         });
       } catch (error) {
@@ -207,7 +204,7 @@ class RxJSDevToolsPanel {
       
       // Periodic check for new streams that might have been missed
       setInterval(() => {
-        if (this.isRxJSDetected && this.streams.size === 0) {
+        if (this.streams.size === 0) {
           console.log('🔄 RxJS DevTools Panel: Periodic check for missed streams...');
           tryGetTabData();
         }
@@ -231,19 +228,16 @@ class RxJSDevToolsPanel {
     switch (message.type) {
       case 'rxjs-detected':
         this.updateStatus(true, 'RxJS detected');
-        this.isRxJSDetected = true;
         break;
 
       case 'devtools-ready':
         console.log('🔄 RxJS DevTools Panel: DevTools hook is ready');
         this.updateStatus(true, 'DevTools ready');
-        this.isRxJSDetected = true;
         break;
 
       case 'app-connected':
         console.log('🔄 RxJS DevTools Panel: App connected:', message.data?.name || 'Unknown App');
         this.updateStatus(true, `Connected: ${message.data?.name || 'App'}`);
-        this.isRxJSDetected = true;
         break;
 
       case 'new-stream':
@@ -409,34 +403,55 @@ class RxJSDevToolsPanel {
   }
 
   private renderStreamDetails(stream: StreamInfo): void {
-    const html = `
-            <div class="stream-detail-header">
-                <div>
-                    <div class="stream-detail-title">${stream.name}</div>
-                    <div class="stream-detail-info">
-                        Created: ${stream.createdAt.toLocaleString()} | 
-                        Status: ${stream.status} | 
-                        Emissions: ${stream.emissions.length}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="emissions-container">
-                <div class="emissions-header">
-                    Stream Emissions (latest first)
-                </div>
-                ${stream.emissions.length === 0
-        ? '<div style="padding: 20px; text-align: center; color: #888;">No emissions yet</div>'
-        : stream.emissions
-          .slice()
-          .reverse()
-          .map((emission: StreamEmission): string => this.createEmissionHTML(emission))
-          .join('')
-      }
-            </div>
-        `;
+    this.elements.streamDetails.innerHTML = '';
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'stream-details-content';
 
-    this.elements.streamDetails.innerHTML = html;
+    // Stream name and status
+    detailsDiv.innerHTML = `
+      <h2>${stream.name || stream.id}</h2>
+      <div class="stream-meta">
+        <span class="stream-status">Status: <b>${stream.status}</b></span>
+        <span class="stream-type">Type: <b>${stream.type}</b></span>
+        <span class="stream-created">Created: <b>${this.formatTime(stream.createdAt)}</b></span>
+      </div>
+    `;
+
+    // Render all metadata fields except known ones
+    const knownFields = new Set(['id', 'name', 'type', 'createdAt', 'emissions', 'status', 'subscriptions', 'lastError']);
+    const metaTable = document.createElement('table');
+    metaTable.className = 'stream-meta-table';
+    for (const key in stream) {
+      if (!knownFields.has(key) && Object.prototype.hasOwnProperty.call(stream, key)) {
+        const value = (stream as any)[key];
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="meta-key">${key}</td><td class="meta-value">${this.formatValue(value)}</td>`;
+        metaTable.appendChild(row);
+      }
+    }
+    if (metaTable.children.length > 0) {
+      const metaHeader = document.createElement('h3');
+      metaHeader.textContent = 'Metadata';
+      detailsDiv.appendChild(metaHeader);
+      detailsDiv.appendChild(metaTable);
+    }
+
+    // Emissions
+    const emissionsHeader = document.createElement('h3');
+    emissionsHeader.textContent = 'Emissions';
+    detailsDiv.appendChild(emissionsHeader);
+    const emissionsDiv = document.createElement('div');
+    emissionsDiv.className = 'emissions-list';
+    if (stream.emissions.length === 0) {
+      emissionsDiv.innerHTML = '<div class="no-emissions">No emissions yet</div>';
+    } else {
+      for (const emission of stream.emissions) {
+        emissionsDiv.innerHTML += this.createEmissionHTML(emission);
+      }
+    }
+    detailsDiv.appendChild(emissionsDiv);
+
+    this.elements.streamDetails.appendChild(detailsDiv);
   }
 
   private createEmissionHTML(emission: StreamEmission): string {
@@ -553,7 +568,7 @@ class RxJSDevToolsPanel {
     if (this.isPaused) {
       this.updateStatus(false, 'Recording paused');
     } else {
-      this.updateStatus(this.isRxJSDetected, this.isRxJSDetected ? 'RxJS detected' : 'No RxJS detected');
+      this.updateStatus(true, 'RxJS detected');
     }
   }
 

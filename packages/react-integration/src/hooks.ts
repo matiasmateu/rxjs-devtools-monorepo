@@ -72,14 +72,14 @@ export function useTrackedObservable<T>(
  */
 export function useTrackedObservables<T extends Record<string, Observable<any>>>(
   observables: T
-): T {
+): { [K in keyof T]: T[K] } {
   const devTools = getGlobalDevTools();
   
   return useMemo(() => {
-    const tracked = {} as T;
+    const tracked = {} as { [K in keyof T]: T[K] };
     
     for (const [name, observable] of Object.entries(observables)) {
-      tracked[name as keyof T] = devTools.trackObservable(observable, name);
+      tracked[name as keyof T] = devTools.trackObservable(observable, name) as T[typeof name];
     }
     
     return tracked;

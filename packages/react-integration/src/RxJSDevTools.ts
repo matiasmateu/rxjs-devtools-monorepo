@@ -156,9 +156,10 @@ export class RxJSDevTools {
    * Track an RxJS Observable for debugging
    * @param observable - The Observable to track
    * @param name - Optional name for the Observable
+   * @param metadata - Optional metadata for the stream
    * @returns The same Observable with tracking added
    */
-  public trackObservable<T>(observable: Observable<T>, name?: string): Observable<T> {
+  public trackObservable<T>(observable: Observable<T>, name?: string, metadata?: Record<string, any>): Observable<T> {
     if (!this.options.enabled || !this.options.logObservables) {
       return observable;
     }
@@ -171,13 +172,13 @@ export class RxJSDevTools {
       return observable;
     }
 
-    return this.doTrackObservable(observable, streamName);
+    return this.doTrackObservable(observable, streamName, metadata);
   }
 
   /**
    * Actually track an observable (when connection is available)
    */
-  private doTrackObservable<T>(observable: Observable<T>, streamName: string): Observable<T> {
+  private doTrackObservable<T>(observable: Observable<T>, streamName: string, metadata?: Record<string, any>): Observable<T> {
     if (!this.connection) {
       return observable;
     }
@@ -197,6 +198,25 @@ export class RxJSDevTools {
     }
 
     this.trackedStreams.set(observable as Observable<any>, actualStreamId);
+
+    // Emit new-stream message with metadata
+    const streamMeta = {
+      id: actualStreamId,
+      name: streamName,
+      type: metadata?.type || 'Observable',
+      timestamp: Date.now(),
+      ...metadata,
+    };
+    try {
+      window.postMessage({
+        type: 'new-stream',
+        source: 'rxjs-devtools-global-hook',
+        data: streamMeta,
+        timestamp: Date.now(),
+      }, '*');
+    } catch (err) {
+      console.warn('🔄 RxJS DevTools: Failed to post new-stream metadata', err);
+    }
 
     // Return the Observable with tracking operators
     return observable.pipe(

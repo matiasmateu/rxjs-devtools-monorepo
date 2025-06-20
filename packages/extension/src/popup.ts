@@ -68,7 +68,6 @@ class PopupController {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]): void => {
       if (tabs[0]) {
         this.currentTab = tabs[0];
-        this.checkRxJSStatus();
         this.setupEventListeners();
       }
     });
@@ -87,7 +86,7 @@ class PopupController {
       this.elements.statusText.textContent = 'Press F12 or right-click → Inspect';
 
       setTimeout((): void => {
-        this.checkRxJSStatus();
+        this.setupEventListeners();
       }, 2000);
     });
 
@@ -116,23 +115,6 @@ class PopupController {
     // Cleanup when popup closes
     window.addEventListener('beforeunload', (): void => {
       clearInterval(statsInterval);
-    });
-  }
-
-  private checkRxJSStatus(): void {
-    if (!this.currentTab || !this.currentTab.id) return;
-
-    const checkMessage: CheckRxJSMessage = { action: 'checkRxJS' };
-
-    chrome.tabs.sendMessage(this.currentTab.id, checkMessage, (response: any): void => {
-      if (chrome.runtime.lastError) {
-        this.updateStatus(false, 'No content script');
-      } else if (response && response.rxjsDetected) {
-        this.updateStatus(true, 'RxJS detected');
-        this.loadStats();
-      } else {
-        this.updateStatus(false, 'No RxJS detected');
-      }
     });
   }
 
@@ -182,6 +164,11 @@ class PopupController {
 
 // Initialize popup when DOM is ready
 document.addEventListener('DOMContentLoaded', (): void => {
-  new PopupController();
+  const root = document.body;
+  root.innerHTML = `<div style="padding: 1.5em; font-size: 1.1em; text-align: center;">
+    <strong>RxJS DevTools is now <span style='color:#61dafb'>React-only</span>.</strong><br/><br/>
+    Please use the <b>React integration hooks/utilities</b> to track observables.<br/><br/>
+    <a href='https://github.com/matiasmateu/rxjs-devtools-monorepo' target='_blank'>Learn more</a>
+  </div>`;
 });
 

@@ -142,10 +142,9 @@ chrome.runtime.onMessage.addListener((
             // Store stream data
             if (request.type === 'new-stream') {
                 const newStreamMessage = request as NewStreamMessage;
+                // Store all metadata fields from the new-stream message
                 data.streams.set(newStreamMessage.data.id, {
-                    id: newStreamMessage.data.id,
-                    name: newStreamMessage.data.name,
-                    type: newStreamMessage.data.type,
+                    ...newStreamMessage.data, // includes id, name, type, timestamp, and any custom metadata
                     createdAt: new Date(newStreamMessage.data.timestamp),
                     emissions: [],
                     status: 'active',
