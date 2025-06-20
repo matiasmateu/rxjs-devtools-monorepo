@@ -22,6 +22,7 @@ export default [
         tsconfig: './tsconfig.json',
         declaration: true,
         declarationDir: 'dist',
+        exclude: ['src/examples.tsx'],
       }),
     ],
   },

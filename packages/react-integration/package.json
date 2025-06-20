@@ -1,5 +1,5 @@
 {
-  "name": "rxjs-devtools",
+  "name": "@reefmix/rxjs-devtools",
   "version": "1.0.0",
   "description": "React integration for RxJS DevTools Chrome Extension",
   "main": "dist/index.js",
@@ -8,8 +8,9 @@
   "files": [
     "dist"
   ],
+  "type": "module",
   "scripts": {
-    "build": "rollup -c",
+    "build": "npm run clean && rollup -c",
     "dev": "rollup -c -w",
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx",
