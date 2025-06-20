@@ -93,8 +93,8 @@ function MyComponent() {
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/rxjs-devtools.git
-cd rxjs-devtools
+git clone https://github.com/matiasmateu/rxjs-devtools-monorepo.git
+cd rxjs-devtools-monorepo
 
 # Install dependencies
 npm install
@@ -316,10 +316,10 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 📞 Support
 
-- 🐛 [Report bugs](https://github.com/your-username/rxjs-devtools/issues)
-- 💡 [Request features](https://github.com/your-username/rxjs-devtools/issues)
-- 💬 [Join discussions](https://github.com/your-username/rxjs-devtools/discussions)
-- 📧 Email: your-email@example.com
+- 🐛 [Report bugs](https://github.com/matiasmateu/rxjs-devtools-monorepo/issues)
+- 💡 [Request features](https://github.com/matiasmateu/rxjs-devtools-monorepo/issues)
+- 💬 [Join discussions](https://github.com/matiasmateu/rxjs-devtools-monorepo/discussions)
+- 📧 Email: matias@mateu.dev
 
 ---
 

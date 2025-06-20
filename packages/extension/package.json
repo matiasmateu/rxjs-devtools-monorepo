@@ -8,6 +8,20 @@
     "clean": "rm -rf dist",
     "validate": "node scripts/validate-extension.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matiasmateu/rxjs-devtools-monorepo.git",
+    "directory": "packages/extension"
+  },
+  "keywords": [
+    "rxjs",
+    "devtools",
+    "chrome-extension",
+    "observable",
+    "debugging"
+  ],
+  "author": "Matias Mateu",
+  "license": "MIT",
   "devDependencies": {
     "@types/chrome": "^0.0.246",
     "typescript": "^5.2.0"
