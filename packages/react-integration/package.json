@@ -1,6 +1,6 @@
 {
   "name": "@reefmix/rxjs-devtools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "React integration for RxJS DevTools Chrome Extension",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
