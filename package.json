@@ -1,6 +1,6 @@
 {
   "name": "rxjs-devtools-monorepo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "RxJS DevTools - Chrome Extension and React Integration",
   "private": false,
   "workspaces": [
