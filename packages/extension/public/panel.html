@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RxJS DevTools</title>
+    <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+    <div class="rxjs-devtools">
+        <header class="header">
+            <div class="header-title">
+                <h1>🔄 RxJS DevTools</h1>
+                <div class="status" id="status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Detecting RxJS...</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <button id="clearBtn" class="btn btn-secondary" title="Clear all streams">Clear</button>
+                <button id="pauseBtn" class="btn btn-primary" title="Pause recording">⏸️ Pause</button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Observable Streams</h3>
+                    <div class="stream-filter">
+                        <input type="text" id="streamFilter" placeholder="Filter streams..." />
+                    </div>
+                    <div class="stream-list" id="streamList">
+                        <div class="no-streams">No RxJS streams detected</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="stream-details" id="streamDetails">
+                    <div class="welcome-message">
+                        <h2>Welcome to RxJS DevTools</h2>
+                        <p>Select a stream from the sidebar to view its details and emissions.</p>
+                        <div class="getting-started">
+                            <h3>Getting Started:</h3>
+                            <ol>
+                                <li>Make sure your application uses RxJS</li>
+                                <li>Refresh the page to detect existing streams</li>
+                                <li>Create new observables to see them appear in the sidebar</li>
+                                <li>Click on any stream to inspect its emissions</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../dist/panel.js"></script>
+</body>
+</html>
+

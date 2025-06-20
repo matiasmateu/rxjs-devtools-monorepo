@@ -1,0 +1,19 @@
+{
+  "name": "rxjs-devtools-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for debugging and monitoring RxJS observables",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "validate": "node scripts/validate-extension.js"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.246",
+    "typescript": "^5.2.0"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.0"
+  }
+}
+

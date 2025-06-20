@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RxJS DevTools Debug Test</title>
+    <script src="https://unpkg.com/rxjs@7.8.1/dist/bundles/rxjs.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        #output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 RxJS DevTools Debug Test</h1>
+        <p>This page tests if the RxJS DevTools extension can detect and monitor RxJS observables.</p>
+        
+        <div id="rxjs-status" class="status warning">
+            RxJS Status: Checking...
+        </div>
+        
+        <div class="controls">
+            <button onclick="createInterval()">Create Interval Observable</button>
+            <button onclick="createSubject()">Create Subject</button>
+            <button onclick="createHttpRequest()">Create HTTP Request</button>
+            <button onclick="createComplexStream()">Create Complex Stream</button>
+            <button onclick="clearOutput()">Clear Output</button>
+        </div>
+        
+        <div id="output">Ready for testing...\n</div>
+    </div>
+
+    <script>
+        // Global variables for debugging
+        window.observables = [];
+        window.subscriptions = [];
+        
+        // Check if RxJS is available
+        function checkRxJS() {
+            const statusEl = document.getElementById('rxjs-status');
+            if (typeof rxjs !== 'undefined' && rxjs.Observable) {
+                statusEl.className = 'status success';
+                statusEl.textContent = 'RxJS Status: ✅ RxJS v7.8.1 loaded successfully';
+                log('✅ RxJS is available globally');
+                log('📦 RxJS version: ' + (rxjs.VERSION || 'Unknown'));
+                log('🔧 Observable constructor: ' + typeof rxjs.Observable);
+                return true;
+            } else {
+                statusEl.className = 'status warning';
+                statusEl.textContent = 'RxJS Status: ❌ RxJS not detected';
+                log('❌ RxJS is not available');
+                return false;
+            }
+        }
+        
+        function log(message) {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.textContent += `[${timestamp}] ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+            console.log('🔄 Debug Test:', message);
+        }
+        
+        function clearOutput() {
+            document.getElementById('output').textContent = 'Output cleared...\n';
+        }
+        
+        function createInterval() {
+            if (!checkRxJS()) return;
+            
+            log('🚀 Creating interval observable...');
+            
+            const interval$ = rxjs.interval(1000).pipe(
+                rxjs.operators.take(5),
+                rxjs.operators.map(x => `Interval value: ${x}`)
+            );
+            
+            window.observables.push(interval$);
+            
+            const sub = interval$.subscribe({
+                next: (value) => {
+                    log(`📡 Interval emission: ${value}`);
+                },
+                complete: () => {
+                    log('✅ Interval completed');
+                },
+                error: (err) => {
+                    log(`❌ Interval error: ${err}`);
+                }
+            });
+            
+            window.subscriptions.push(sub);
+            log('✅ Interval observable created and subscribed');
+        }
+        
+        function createSubject() {
+            if (!checkRxJS()) return;
+            
+            log('🚀 Creating Subject...');
+            
+            const subject = new rxjs.Subject();
+            window.observables.push(subject);
+            
+            const sub = subject.subscribe({
+                next: (value) => {
+                    log(`📡 Subject emission: ${value}`);
+                },
+                complete: () => {
+                    log('✅ Subject completed');
+                },
+                error: (err) => {
+                    log(`❌ Subject error: ${err}`);
+                }
+            });
+            
+            window.subscriptions.push(sub);
+            
+            // Emit some values
+            setTimeout(() => subject.next('Hello'), 500);
+            setTimeout(() => subject.next('World'), 1000);
+            setTimeout(() => subject.next('RxJS'), 1500);
+            setTimeout(() => subject.complete(), 2000);
+            
+            log('✅ Subject created and will emit values');
+        }
+        
+        function createHttpRequest() {
+            if (!checkRxJS()) return;
+            
+            log('🚀 Creating HTTP request observable...');
+            
+            // Simulate HTTP request with fromFetch or ajax
+            const http$ = rxjs.from(
+                fetch('https://jsonplaceholder.typicode.com/todos/1')
+                    .then(response => response.json())
+            ).pipe(
+                rxjs.operators.catchError(err => {
+                    log(`❌ HTTP error: ${err.message}`);
+                    return rxjs.of({ error: true, message: err.message });
+                })
+            );
+            
+            window.observables.push(http$);
+            
+            const sub = http$.subscribe({
+                next: (data) => {
+                    log(`📡 HTTP response: ${JSON.stringify(data, null, 2)}`);
+                },
+                complete: () => {
+                    log('✅ HTTP request completed');
+                },
+                error: (err) => {
+                    log(`❌ HTTP error: ${err}`);
+                }
+            });
+            
+            window.subscriptions.push(sub);
+            log('✅ HTTP request observable created');
+        }
+        
+        function createComplexStream() {
+            if (!checkRxJS()) return;
+            
+            log('🚀 Creating complex stream with operators...');
+            
+            const complex$ = rxjs.of(1, 2, 3, 4, 5).pipe(
+                rxjs.operators.map(x => x * 2),
+                rxjs.operators.filter(x => x > 4),
+                rxjs.operators.scan((acc, curr) => acc + curr, 0),
+                rxjs.operators.tap(x => log(`🔄 Intermediate value: ${x}`)),
+                rxjs.operators.debounceTime(100)
+            );
+            
+            window.observables.push(complex$);
+            
+            const sub = complex$.subscribe({
+                next: (value) => {
+                    log(`📡 Complex stream final: ${value}`);
+                },
+                complete: () => {
+                    log('✅ Complex stream completed');
+                },
+                error: (err) => {
+                    log(`❌ Complex stream error: ${err}`);
+                }
+            });
+            
+            window.subscriptions.push(sub);
+            log('✅ Complex stream created');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔄 Page loaded, checking RxJS...');
+            checkRxJS();
+            
+            // Log window.rxjs for debugging
+            log('🔍 window.rxjs: ' + typeof window.rxjs);
+            log('🔍 window.rxjs.Observable: ' + typeof window.rxjs?.Observable);
+            
+            // Give extension time to inject
+            setTimeout(() => {
+                log('🔄 Extension should have injected by now');
+                log('🔍 Observable.prototype.__rxjsDevToolsOriginalSubscribe: ' + 
+                    typeof rxjs?.Observable?.prototype?.__rxjsDevToolsOriginalSubscribe);
+            }, 2000);
+        });
+        
+        // Clean up on page unload
+        window.addEventListener('beforeunload', function() {
+            window.subscriptions.forEach(sub => {
+                if (sub && typeof sub.unsubscribe === 'function') {
+                    sub.unsubscribe();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

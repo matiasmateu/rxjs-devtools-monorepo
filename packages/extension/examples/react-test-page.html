@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React + RxJS DevTools Test</title>
+    
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- RxJS -->
+    <script src="https://unpkg.com/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+    
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .app { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button { 
+            padding: 12px 20px; 
+            border: none;
+            border-radius: 6px;
+            background: #007acc;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #005a9e; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .output { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 6px; 
+            border-left: 4px solid #007acc;
+            max-height: 400px; 
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+        }
+        .log-item { 
+            margin: 4px 0; 
+            padding: 4px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .log-item:last-child { border-bottom: none; }
+        .log-success { color: #28a745; }
+        .log-error { color: #dc3545; }
+        .log-info { color: #6c757d; }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 6px; 
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1976d2;
+        }
+        .counter {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { Observable, Subject, BehaviorSubject, interval, fromEvent, timer, of } = rxjs;
+        const { map, filter, take, debounceTime, switchMap, tap, catchError, scan, distinctUntilChanged } = rxjs.operators;
+
+        function ReactRxJSApp() {
+            const [logs, setLogs] = useState([]);
+            const [counter, setCounter] = useState(0);
+            const [isRunning, setIsRunning] = useState(false);
+            const logsRef = useRef(null);
+            const counterSubject = useRef(new BehaviorSubject(0));
+            const intervalSubscription = useRef(null);
+
+            // Auto-scroll logs
+            useEffect(() => {
+                if (logsRef.current) {
+                    logsRef.current.scrollTop = logsRef.current.scrollHeight;
+                }
+            }, [logs]);
+
+            // Subscribe to counter updates
+            useEffect(() => {
+                const subscription = counterSubject.current.subscribe(value => {
+                    setCounter(value);
+                });
+
+                return () => subscription.unsubscribe();
+            }, []);
+
+            const addLog = (message, type = 'info') => {
+                const logEntry = {
+                    id: Date.now() + Math.random(),
+                    message,
+                    type,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                setLogs(prev => [...prev.slice(-50), logEntry]); // Keep only last 50 logs
+            };
+
+            const clearLogs = () => {
+                setLogs([]);
+            };
+
+            // React Hook for RxJS Observable
+            const createSimpleObservable = () => {
+                addLog('🔄 Creating React Observable...', 'info');
+                
+                const obs$ = new Observable(subscriber => {
+                    addLog('📡 Observable: Starting emission sequence', 'info');
+                    subscriber.next('React');
+                    
+                    setTimeout(() => {
+                        subscriber.next('meets');
+                        setTimeout(() => {
+                            subscriber.next('RxJS!');
+                            setTimeout(() => {
+                                subscriber.complete();
+                                addLog('✅ Observable completed', 'success');
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                });
+
+                obs$.subscribe({
+                    next: value => addLog(`📤 Received: ${value}`, 'success'),
+                    error: err => addLog(`❌ Error: ${err}`, 'error'),
+                    complete: () => addLog('🏁 Observable sequence finished', 'success')
+                });
+            };
+
+            // HTTP simulation with React state
+            const simulateHttpWithReact = () => {
+                addLog('🌐 Simulating HTTP requests in React...', 'info');
+
+                const httpRequest$ = timer(1000).pipe(
+                    switchMap(() => of({ 
+                        id: Math.floor(Math.random() * 1000),
+                        user: 'React User',
+                        timestamp: new Date().toISOString()
+                    })),
+                    catchError(err => {
+                        addLog(`🚨 HTTP Error: ${err.message}`, 'error');
+                        return of({ error: true, message: err.message });
+                    })
+                );
+
+                httpRequest$.subscribe({
+                    next: data => {
+                        addLog(`📦 HTTP Response: ${JSON.stringify(data)}`, 'success');
+                    },
+                    error: err => addLog(`❌ Unhandled HTTP error: ${err}`, 'error')
+                });
+            };
+
+            // Subject with multiple React components
+            const testSubjectWithComponents = () => {
+                addLog('👥 Testing Subject with React components...', 'info');
+                
+                const messageSubject = new Subject();
+
+                // Simulate multiple React components subscribing
+                messageSubject.pipe(
+                    map(msg => `[Component A] ${msg}`)
+                ).subscribe(msg => addLog(`🧩 ${msg}`, 'success'));
+
+                messageSubject.pipe(
+                    map(msg => `[Component B] ${msg.toUpperCase()}`)
+                ).subscribe(msg => addLog(`🧩 ${msg}`, 'success'));
+
+                messageSubject.pipe(
+                    filter(msg => msg.includes('important')),
+                    map(msg => `[Important Filter] ${msg}`)
+                ).subscribe(msg => addLog(`⚠️ ${msg}`, 'success'));
+
+                // Emit messages
+                setTimeout(() => messageSubject.next('Hello from React!'), 200);
+                setTimeout(() => messageSubject.next('This is important message'), 600);
+                setTimeout(() => messageSubject.next('Final message'), 1000);
+                setTimeout(() => {
+                    messageSubject.complete();
+                    addLog('✅ Subject completed', 'success');
+                }, 1400);
+            };
+
+            // Auto-incrementing counter
+            const startCounter = () => {
+                if (isRunning) return;
+                
+                addLog('🔢 Starting auto-counter with RxJS...', 'info');
+                setIsRunning(true);
+
+                intervalSubscription.current = interval(300).pipe(
+                    take(20),
+                    tap(value => counterSubject.current.next(value)),
+                    scan((acc, curr) => acc + curr, 0)
+                ).subscribe({
+                    next: total => addLog(`📊 Counter: ${counterSubject.current.value}, Total: ${total}`, 'info'),
+                    complete: () => {
+                        addLog('🏁 Counter finished', 'success');
+                        setIsRunning(false);
+                    }
+                });
+            };
+
+            const stopCounter = () => {
+                if (intervalSubscription.current) {
+                    intervalSubscription.current.unsubscribe();
+                    intervalSubscription.current = null;
+                    setIsRunning(false);
+                    addLog('⏹️ Counter stopped', 'info');
+                }
+            };
+
+            // React event stream
+            const trackButtonClicks = () => {
+                addLog('🖱️ Setting up click tracking...', 'info');
+                
+                const buttons = document.querySelectorAll('button');
+                const clickStreams = Array.from(buttons).map(button => 
+                    fromEvent(button, 'click').pipe(
+                        map(event => ({
+                            button: event.target.textContent,
+                            timestamp: Date.now()
+                        }))
+                    )
+                );
+
+                // Merge all click streams
+                const allClicks$ = rxjs.merge(...clickStreams).pipe(
+                    debounceTime(100),
+                    distinctUntilChanged((a, b) => a.button === b.button && (b.timestamp - a.timestamp) < 500)
+                );
+
+                const subscription = allClicks$.subscribe(click => {
+                    addLog(`🎯 Button clicked: "${click.button}"`, 'info');
+                });
+
+                // Auto-unsubscribe after 10 seconds
+                setTimeout(() => {
+                    subscription.unsubscribe();
+                    addLog('⏹️ Click tracking stopped', 'info');
+                }, 10000);
+            };
+
+            return (
+                <div className="app">
+                    <h1>🔄 React + RxJS DevTools Test</h1>
+                    
+                    <div className="status">
+                        <strong>Status:</strong> React app with RxJS integration loaded successfully!
+                        <span className="counter">Counter: {counter}</span>
+                        <br />
+                        <small>Open Chrome DevTools (F12) and check the "RxJS" tab to monitor observables.</small>
+                    </div>
+
+                    <div className="controls">
+                        <button onClick={createSimpleObservable}>
+                            Create React Observable
+                        </button>
+                        <button onClick={simulateHttpWithReact}>
+                            HTTP Request Simulation
+                        </button>
+                        <button onClick={testSubjectWithComponents}>
+                            Subject + Components
+                        </button>
+                        <button 
+                            onClick={startCounter} 
+                            disabled={isRunning}
+                        >
+                            {isRunning ? 'Counter Running...' : 'Start Counter'}
+                        </button>
+                        <button 
+                            onClick={stopCounter}
+                            disabled={!isRunning}
+                        >
+                            Stop Counter
+                        </button>
+                        <button onClick={trackButtonClicks}>
+                            Track Button Clicks
+                        </button>
+                        <button onClick={clearLogs}>
+                            Clear Logs
+                        </button>
+                    </div>
+
+                    <div className="output" ref={logsRef}>
+                        <strong>📋 Application Logs:</strong>
+                        {logs.length === 0 ? (
+                            <div className="log-item log-info">No logs yet. Click the buttons above to create RxJS streams!</div>
+                        ) : (
+                            logs.map(log => (
+                                <div key={log.id} className={`log-item log-${log.type}`}>
+                                    <span style={{ color: '#6c757d' }}>[{log.timestamp}]</span> {log.message}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Initial setup
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<ReactRxJSApp />);
+
+        // Log that everything is loaded
+        console.log('🔄 RxJS DevTools: React + RxJS test page loaded!');
+        console.log('🔄 React available:', typeof React !== 'undefined');
+        console.log('🔄 RxJS available:', typeof rxjs !== 'undefined');
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RxJS DevTools</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 RxJS DevTools</h1>
+            <div class="status" id="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Checking...</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="info-section">
+                <h3>Debug RxJS Observables</h3>
+                <p>Monitor and inspect RxJS streams in real-time using the DevTools panel.</p>
+            </div>
+            
+            <div class="actions">
+                <button id="openDevTools" class="btn btn-primary">
+                    📊 Open DevTools Panel
+                </button>
+                <button id="refreshPage" class="btn btn-secondary">
+                    🔄 Refresh Page
+                </button>
+            </div>
+            
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-item">
+                    <span class="stat-label">Streams:</span>
+                    <span class="stat-value" id="streamCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Emissions:</span>
+                    <span class="stat-value" id="emissionCount">0</span>
+                </div>
+            </div>
+            
+            <div class="help-section">
+                <h4>Getting Started:</h4>
+                <ol>
+                    <li>Open Chrome DevTools (F12)</li>
+                    <li>Look for the "RxJS" tab</li>
+                    <li>Create observables in your app</li>
+                    <li>Watch streams appear in real-time!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <script src="../dist/popup.js"></script>
+</body>
+</html>
+

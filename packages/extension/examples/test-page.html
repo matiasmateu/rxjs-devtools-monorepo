@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RxJS DevTools Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        .output {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 RxJS DevTools Test Page</h1>
+    
+    <div class="container">
+        <h2>Getting Started</h2>
+        <div class="status">
+            1. Make sure RxJS DevTools extension is loaded<br>
+            2. Open Chrome DevTools (F12)<br>
+            3. Look for the "RxJS" tab<br>
+            4. Click the buttons below to create observable streams
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Basic Observables</h2>
+        <button onclick="createBasicObservable()">Create Basic Observable</button>
+        <button onclick="createIntervalObservable()">Create Interval Observable</button>
+        <button onclick="createFromArrayObservable()">Create From Array</button>
+        <div class="output" id="basicOutput"></div>
+    </div>
+
+    <div class="container">
+        <h2>Operators</h2>
+        <button onclick="createMappedObservable()">Map Operator</button>
+        <button onclick="createFilteredObservable()">Filter Operator</button>
+        <button onclick="createMergedObservable()">Merge Observables</button>
+        <div class="output" id="operatorOutput"></div>
+    </div>
+
+    <div class="container">
+        <h2>Advanced Patterns</h2>
+        <button onclick="createSubject()">Create Subject</button>
+        <button onclick="createBehaviorSubject()">Create BehaviorSubject</button>
+        <button onclick="createErrorObservable()">Create Error Observable</button>
+        <div class="output" id="advancedOutput"></div>
+    </div>
+
+    <div class="container">
+        <h2>HTTP Simulation</h2>
+        <button onclick="simulateHttpRequest()">Simulate HTTP Request</button>
+        <button onclick="simulateMultipleRequests()">Multiple HTTP Requests</button>
+        <div class="output" id="httpOutput"></div>
+    </div>
+
+    <!-- Load RxJS from CDN -->
+    <script src="https://unpkg.com/rxjs@7/dist/bundles/rxjs.umd.min.js"></script>
+    
+    <script>
+        // Get RxJS operators and observables
+        const { Observable, Subject, BehaviorSubject, interval, from, of, merge, timer } = rxjs;
+        const { map, filter, take, catchError, mergeMap, tap, debounceTime } = rxjs.operators;
+
+        // Helper function to log to output div
+        function logToOutput(elementId, message) {
+            const output = document.getElementById(elementId);
+            output.textContent += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Basic Observable Functions
+        function createBasicObservable() {
+            logToOutput('basicOutput', 'Creating basic observable...');
+            
+            const observable = new Observable(subscriber => {
+                subscriber.next('Hello');
+                setTimeout(() => subscriber.next('World'), 1000);
+                setTimeout(() => subscriber.complete(), 2000);
+            });
+
+            observable.subscribe({
+                next: value => logToOutput('basicOutput', `Basic Observable: ${value}`),
+                complete: () => logToOutput('basicOutput', 'Basic Observable completed')
+            });
+        }
+
+        function createIntervalObservable() {
+            logToOutput('basicOutput', 'Creating interval observable...');
+            
+            const subscription = interval(500)
+                .pipe(take(5))
+                .subscribe({
+                    next: value => logToOutput('basicOutput', `Interval: ${value}`),
+                    complete: () => logToOutput('basicOutput', 'Interval completed')
+                });
+        }
+
+        function createFromArrayObservable() {
+            logToOutput('basicOutput', 'Creating from array observable...');
+            
+            from([1, 2, 3, 4, 5])
+                .subscribe({
+                    next: value => logToOutput('basicOutput', `From Array: ${value}`),
+                    complete: () => logToOutput('basicOutput', 'From Array completed')
+                });
+        }
+
+        // Operator Functions
+        function createMappedObservable() {
+            logToOutput('operatorOutput', 'Creating mapped observable...');
+            
+            from([1, 2, 3, 4, 5])
+                .pipe(
+                    map(x => x * 2),
+                    tap(x => console.log('Mapped value:', x))
+                )
+                .subscribe({
+                    next: value => logToOutput('operatorOutput', `Mapped (x2): ${value}`),
+                    complete: () => logToOutput('operatorOutput', 'Mapped observable completed')
+                });
+        }
+
+        function createFilteredObservable() {
+            logToOutput('operatorOutput', 'Creating filtered observable...');
+            
+            from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                .pipe(
+                    filter(x => x % 2 === 0),
+                    tap(x => console.log('Filtered value:', x))
+                )
+                .subscribe({
+                    next: value => logToOutput('operatorOutput', `Filtered (even): ${value}`),
+                    complete: () => logToOutput('operatorOutput', 'Filtered observable completed')
+                });
+        }
+
+        function createMergedObservable() {
+            logToOutput('operatorOutput', 'Creating merged observables...');
+            
+            const obs1 = interval(1000).pipe(take(3), map(x => `A${x}`));
+            const obs2 = interval(1500).pipe(take(3), map(x => `B${x}`));
+            
+            merge(obs1, obs2)
+                .subscribe({
+                    next: value => logToOutput('operatorOutput', `Merged: ${value}`),
+                    complete: () => logToOutput('operatorOutput', 'Merged observables completed')
+                });
+        }
+
+        // Advanced Pattern Functions
+        let testSubject = null;
+        let testBehaviorSubject = null;
+
+        function createSubject() {
+            logToOutput('advancedOutput', 'Creating Subject...');
+            
+            testSubject = new Subject();
+            
+            testSubject.subscribe({
+                next: value => logToOutput('advancedOutput', `Subject Observer 1: ${value}`),
+                complete: () => logToOutput('advancedOutput', 'Subject Observer 1 completed')
+            });
+            
+            testSubject.subscribe({
+                next: value => logToOutput('advancedOutput', `Subject Observer 2: ${value}`),
+                complete: () => logToOutput('advancedOutput', 'Subject Observer 2 completed')
+            });
+            
+            // Emit some values
+            setTimeout(() => testSubject.next('Subject Message 1'), 500);
+            setTimeout(() => testSubject.next('Subject Message 2'), 1000);
+            setTimeout(() => testSubject.complete(), 1500);
+        }
+
+        function createBehaviorSubject() {
+            logToOutput('advancedOutput', 'Creating BehaviorSubject...');
+            
+            testBehaviorSubject = new BehaviorSubject('Initial Value');
+            
+            testBehaviorSubject.subscribe({
+                next: value => logToOutput('advancedOutput', `BehaviorSubject: ${value}`),
+                complete: () => logToOutput('advancedOutput', 'BehaviorSubject completed')
+            });
+            
+            // Emit some values
+            setTimeout(() => testBehaviorSubject.next('Updated Value 1'), 500);
+            setTimeout(() => testBehaviorSubject.next('Updated Value 2'), 1000);
+        }
+
+        function createErrorObservable() {
+            logToOutput('advancedOutput', 'Creating error observable...');
+            
+            new Observable(subscriber => {
+                subscriber.next('Before error');
+                setTimeout(() => {
+                    subscriber.error(new Error('Test error occurred!'));
+                }, 1000);
+            })
+            .pipe(
+                catchError(error => {
+                    logToOutput('advancedOutput', `Caught error: ${error.message}`);
+                    return of('Error handled');
+                })
+            )
+            .subscribe({
+                next: value => logToOutput('advancedOutput', `Error Observable: ${value}`),
+                complete: () => logToOutput('advancedOutput', 'Error Observable completed')
+            });
+        }
+
+        // HTTP Simulation Functions
+        function simulateHttpRequest() {
+            logToOutput('httpOutput', 'Simulating HTTP request...');
+            
+            // Simulate HTTP request with delay
+            const httpRequest = new Observable(subscriber => {
+                logToOutput('httpOutput', 'Making HTTP request...');
+                setTimeout(() => {
+                    const data = { id: 1, name: 'John Doe', email: 'john@example.com' };
+                    subscriber.next(data);
+                    subscriber.complete();
+                }, 2000);
+            });
+            
+            httpRequest
+                .pipe(
+                    tap(data => logToOutput('httpOutput', 'HTTP response received')),
+                    map(data => ({ ...data, processed: true }))
+                )
+                .subscribe({
+                    next: data => logToOutput('httpOutput', `HTTP Data: ${JSON.stringify(data)}`),
+                    complete: () => logToOutput('httpOutput', 'HTTP request completed')
+                });
+        }
+
+        function simulateMultipleRequests() {
+            logToOutput('httpOutput', 'Simulating multiple HTTP requests...');
+            
+            const requests = [1, 2, 3].map(id => 
+                timer(Math.random() * 2000).pipe(
+                    map(() => ({ id, data: `Response ${id}`, timestamp: Date.now() }))
+                )
+            );
+            
+            merge(...requests)
+                .subscribe({
+                    next: response => logToOutput('httpOutput', `Multi HTTP: ${JSON.stringify(response)}`),
+                    complete: () => logToOutput('httpOutput', 'All HTTP requests completed')
+                });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔄 RxJS Test Page loaded - Ready for DevTools testing!');
+            console.log('🔄 window.rxjs =', window.rxjs);
+            console.log('🔄 window.Observable =', window.Observable);
+            
+            // Check if RxJS DevTools is detected
+            setTimeout(() => {
+                const status = document.querySelector('.status');
+                status.innerHTML += '<br><br><strong>✅ RxJS loaded successfully!</strong><br>You should see RxJS detected in the DevTools extension.';
+                
+                // Log more info for debugging
+                console.log('🔄 After 1 second - window.rxjs =', window.rxjs);
+                console.log('🔄 After 1 second - window.Observable =', window.Observable);
+                
+                if (window.rxjs && window.rxjs.Observable) {
+                    console.log('🔄 RxJS Observable found via window.rxjs.Observable');
+                    
+                    // Test if Observable has been patched
+                    setTimeout(() => {
+                        const obs = window.rxjs.Observable;
+                        console.log('🔄 Testing Observable patching...');
+                        console.log('🔄 Observable.prototype.subscribe =', obs.prototype.subscribe);
+                        console.log('🔄 Observable has __rxjsDevToolsOriginalSubscribe?', obs.prototype.__rxjsDevToolsOriginalSubscribe);
+                        
+                        if (obs.prototype.__rxjsDevToolsOriginalSubscribe) {
+                            console.log('✅ Observable has been patched by RxJS DevTools!');
+                        } else {
+                            console.log('❌ Observable has NOT been patched - this is the problem!');
+                        }
+                    }, 2000);
+                } else {
+                    console.log('⚠️ RxJS Observable NOT found - this might be why DevTools is not detecting it');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+

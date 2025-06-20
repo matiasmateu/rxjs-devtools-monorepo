@@ -1,0 +1,38 @@
+{
+  "name": "rxjs-devtools-monorepo",
+  "version": "1.0.0",
+  "description": "RxJS DevTools - Chrome Extension and React Integration",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "build:extension": "npm run build --workspace=packages/extension",
+    "build:react": "npm run build --workspace=packages/react-integration",
+    "dev": "npm run dev --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "clean": "npm run clean --workspaces",
+    "postinstall": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/rxjs-devtools.git"
+  },
+  "keywords": [
+    "rxjs",
+    "devtools",
+    "chrome-extension",
+    "react",
+    "observable",
+    "debugging"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "lerna": "^8.0.0"
+  }
+}
+

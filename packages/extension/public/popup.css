@@ -1,0 +1,168 @@
+body {
+    width: 320px;
+    min-height: 400px;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e1e;
+    color: #cccccc;
+}
+
+.container {
+    padding: 0;
+}
+
+.header {
+    background-color: #2d2d30;
+    padding: 15px 20px;
+    border-bottom: 1px solid #3e3e42;
+}
+
+.header h1 {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffa500;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background-color: #4caf50;
+    animation: none;
+}
+
+.status-dot.disconnected {
+    background-color: #f44336;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.content {
+    padding: 20px;
+}
+
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-section h3 {
+    color: #ffffff;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.info-section p {
+    color: #cccccc;
+    font-size: 12px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #007acc;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #005a9e;
+}
+
+.btn-secondary {
+    background-color: #404040;
+    color: #cccccc;
+}
+
+.btn-secondary:hover {
+    background-color: #505050;
+}
+
+.stats {
+    background-color: #252526;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.stat-label {
+    color: #cccccc;
+}
+
+.stat-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.help-section {
+    background-color: #252526;
+    border: 1px solid #3e3e42;
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.help-section h4 {
+    color: #ffffff;
+    font-size: 12px;
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.help-section ol {
+    color: #cccccc;
+    font-size: 11px;
+    margin: 0;
+    padding-left: 16px;
+    line-height: 1.4;
+}
+
+.help-section li {
+    margin-bottom: 4px;
+}
+
